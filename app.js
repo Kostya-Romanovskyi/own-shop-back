@@ -1,0 +1,35 @@
+const app = require('./server')
+const moment = require('moment')
+const cors = require('cors')
+const fs = require('fs/promises')
+require('dotenv').config()
+
+const adminRouter = require('./routes/auth/admins')
+const userRouter = require('./routes/auth/users')
+
+const users = require('./users')
+
+app.use(cors())
+
+// app.use(async (req, res, next) => {
+// 	const { method, url } = req
+// 	const date = moment().format(`DD-MM-YYYY_hh:mm:ss`)
+
+// 	await fs.appendFile('./public/server.log', `${method} ${url} ${date} \n`)
+
+// 	next()
+// })
+
+app.use('/api', userRouter)
+app.use('/auth/admin', adminRouter)
+
+app.use((req, res) => {
+	res.status(404).json({
+		message: 'Not found',
+	})
+})
+
+app.use((err, req, res, next) => {
+	const { status = 500, message = 'Server error' } = err
+	res.status(status).json({ message })
+})
