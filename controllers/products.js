@@ -23,8 +23,12 @@ const getAllProducts = async (req, res) => {
 const getProductByName = async (req, res) => {
 	try {
 		const { name } = req.params;
+		console.log(name);
 
-		const result = await Products.findOne({ include: { model: ProductsItem } }, { where: { name } });
+		const result = await Products.findOne({
+			include: [{ model: ProductsItem }],
+			where: { name },
+		});
 
 		res.status(200).json(result);
 	} catch (error) {
