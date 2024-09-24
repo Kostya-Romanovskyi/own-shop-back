@@ -19,6 +19,18 @@ const getAllItems = async (req, res) => {
 	}
 };
 
+const getItemById = async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		const result = await ProductsItem.findOne({ where: { id } });
+
+		res.status(200).json(result);
+	} catch (error) {
+		res.status(500).json({ error: 'Error fetch item by id' });
+	}
+};
+
 const addNewItem = async (req, res) => {
 	try {
 		const validateBody = scheme.productsItemScheme.validate(req.body);
@@ -119,4 +131,4 @@ const deleteItem = async (req, res) => {
 	}
 };
 
-module.exports = { getAllItems, addNewItem, updateItem, deleteItem };
+module.exports = { getAllItems, getItemById, addNewItem, updateItem, deleteItem };
