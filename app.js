@@ -4,13 +4,16 @@ const cors = require('cors')
 const fs = require('fs/promises')
 require('dotenv').config()
 
-const adminRouter = require('./routes/auth/admins')
 const userRouter = require('./routes/auth/users')
-
-const users = require('./users')
+const userOrdersRouter = require('./routes/api/users')
+const categoriesRouter = require('./routes/api/categories')
+const productsRouter = require('./routes/api/products')
+const productsItemRouter = require('./routes/api/productsItem')
+const ordersRouter = require('./routes/api/orders')
+const orderItemsRouter = require('./routes/api/orderItems')
+const cartRouter = require('./routes/api/cart')
 
 app.use(cors())
-
 // app.use(async (req, res, next) => {
 // 	const { method, url } = req
 // 	const date = moment().format(`DD-MM-YYYY_hh:mm:ss`)
@@ -21,7 +24,13 @@ app.use(cors())
 // })
 
 app.use('/api', userRouter)
-app.use('/auth/admin', adminRouter)
+app.use('/api', userOrdersRouter)
+app.use('/api', categoriesRouter)
+app.use('/api', productsRouter)
+app.use('/api', productsItemRouter)
+app.use('/api', ordersRouter)
+app.use('/api', orderItemsRouter)
+app.use('/api', cartRouter)
 
 app.use((req, res) => {
 	res.status(404).json({

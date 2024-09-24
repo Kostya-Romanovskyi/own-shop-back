@@ -2,3 +2,7 @@ GET /contacts 16-04-2024_05:10:48
 GET /contacts 16-04-2024_05:10:52 
 GET / 16-04-2024_05:11:01 
 GET / 16-04-2024_05:11:26 
+POST /api/categories 26-04-2024_06:13:18 
+GET /api/categories 26-04-2024_06:13:54 
+GET /api/categories/3 26-04-2024_06:14:06 
+GET /api/categories/Fruits 26-04-2024_06:14:24 

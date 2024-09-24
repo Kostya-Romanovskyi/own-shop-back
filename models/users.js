@@ -1,18 +1,12 @@
-const { Sequelize, DataTypes } = require('sequelize')
-require('dotenv').config()
-const Joi = require('joi')
-const myCustomJoi = Joi.extend(require('joi-phone-number'))
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+require('dotenv').config();
+const Joi = require('joi');
+const { Orders } = require('./orders');
+const { OrderItems } = require('./orderItems');
+const myCustomJoi = Joi.extend(require('joi-phone-number'));
 
-const sequelize = new Sequelize({
-	host: process.env.DB_HOST,
-	dialect: process.env.DB_DIALECT,
-	port: process.env.DB_PORT,
-	username: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_DATABASE,
-})
-
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/;
 
 const User = sequelize.define(
 	'users',
@@ -53,19 +47,15 @@ const User = sequelize.define(
 
 		image: DataTypes.STRING,
 
-		createdAt: DataTypes.DATE,
-
-		updatedAt: DataTypes.DATE,
-
 		token: {
 			type: DataTypes.STRING,
 			defaultValue: '',
 		},
 	},
 	{
-		tableName: 'users',
+		timestamps: true,
 	}
-)
+);
 
 const registerSchema = Joi.object({
 	id: Joi.number(),
@@ -73,23 +63,39 @@ const registerSchema = Joi.object({
 	last_name: Joi.string().min(2).required(),
 	email: Joi.string().pattern(EMAIL_REGEX).required(),
 	password: Joi.string().min(6).max(25).required(),
+	password_check: Joi.string().min(6).max(25).required(),
 	phone: myCustomJoi.string().phoneNumber().required(),
 	additional_information: Joi.string().optional(),
 	role: Joi.string().required(),
-	image: Joi.string().optional(),
+	image: Joi.optional(),
 	createdAt: Joi.date().timestamp().default(Date.now),
 	updatedAt: Joi.date().timestamp(),
 	token: Joi.string(),
-})
+});
 
 const loginSchema = Joi.object({
 	email: Joi.string().pattern(EMAIL_REGEX).required(),
 	password: Joi.string().min(6).max(25).required(),
-})
+});
+
+const updateSchema = Joi.object({
+	name: Joi.string().min(2).optional(),
+	last_name: Joi.string().min(2).optional(),
+	email: Joi.string().pattern(EMAIL_REGEX).optional(),
+	password: Joi.string().min(6).max(25).optional(),
+	password_check: Joi.string().min(6).max(25).optional(),
+	phone: myCustomJoi.string().phoneNumber().optional(),
+	additional_information: Joi.string().optional(),
+	image: Joi.optional(),
+});
 
 const schemas = {
 	registerSchema,
 	loginSchema,
-}
+	updateSchema,
+};
 
-module.exports = { User, schemas }
+User.hasMany(Orders, { foreignKey: 'user_id' });
+// User.hasMany(OrderItems, { foreignKey: 'order_items' })
+
+module.exports = { User, schemas };
