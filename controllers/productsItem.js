@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const { ProductsItem, scheme } = require('../models/productsItem');
+const { Ingredients } = require('../models/ingredients');
 
 const getAllItems = async (req, res) => {
 	try {
@@ -23,11 +24,37 @@ const getItemById = async (req, res) => {
 	try {
 		const { id } = req.params;
 
-		const result = await ProductsItem.findOne({ where: { id } });
+		const result = await ProductsItem.findOne({
+			where: { id },
+			include: { model: Ingredients, attributes: ['id', 'name', 'description', 'allergen_info', 'calories'] },
+		});
 
 		res.status(200).json(result);
 	} catch (error) {
+		console.log(error);
+
 		res.status(500).json({ error: 'Error fetch item by id' });
+	}
+};
+
+const addIngredientsToItem = async (req, res) => {
+	const { id } = req.params; // Получаем ID товара из параметров
+	const { ingredientIds } = req.body; // Получаем массив ID ингредиентов из тела запроса
+
+	try {
+		// Находим товар по ID
+		const product = await ProductsItem.findByPk(id);
+		if (!product) {
+			return res.status(404).json({ error: 'Product not found' });
+		}
+
+		// Добавляем ингредиенты к товару
+		await product.addIngredients(ingredientIds);
+
+		return res.status(200).json({ message: 'Ingredients added to product successfully' });
+	} catch (error) {
+		console.error('Error adding ingredients to product:', error);
+		return res.status(500).json({ error: 'Error adding ingredients to product' });
 	}
 };
 
@@ -131,4 +158,4 @@ const deleteItem = async (req, res) => {
 	}
 };
 
-module.exports = { getAllItems, getItemById, addNewItem, updateItem, deleteItem };
+module.exports = { getAllItems, getItemById, addNewItem, updateItem, deleteItem, addIngredientsToItem };

@@ -1,18 +1,19 @@
-const { DataTypes } = require('sequelize')
-const Joi = require('joi')
-const sequelize = require('../config/sequelize')
+const { DataTypes } = require('sequelize');
+const Joi = require('joi');
+const sequelize = require('../config/sequelize');
 
 const ProductsItem = sequelize.define(
 	'products_item',
 	{
 		id: {
-			type: DataTypes.NUMBER,
+			type: DataTypes.INTEGER,
 			primaryKey: true,
+			autoIncrement: true,
 		},
 		name: DataTypes.STRING,
 		description: DataTypes.STRING,
 		price: DataTypes.DECIMAL,
-		products_id: DataTypes.NUMBER,
+		products_id: DataTypes.INTEGER,
 		image: DataTypes.STRING,
 		type: DataTypes.ENUM('food', 'product'),
 	},
@@ -20,7 +21,7 @@ const ProductsItem = sequelize.define(
 		timestamps: true,
 		tableName: 'products_item',
 	}
-)
+);
 
 const productsItemScheme = Joi.object({
 	id: Joi.number(),
@@ -29,19 +30,19 @@ const productsItemScheme = Joi.object({
 	price: Joi.number().precision(5).positive().precision(2).required(),
 	products_id: Joi.number().required(),
 	image: Joi.string(),
-	type: Joi.string().required(),
-})
+	type: Joi.string().valid('food', 'product').required(), // Убедитесь, что тип valid
+});
 
 const updateProductsItemScheme = Joi.object({
 	name: Joi.string().min(4).max(20),
 	description: Joi.string(),
 	price: Joi.number().precision(5).positive().precision(2),
 	image: Joi.string(),
-})
+});
 
 const scheme = {
 	productsItemScheme,
 	updateProductsItemScheme,
-}
+};
 
-module.exports = { ProductsItem, scheme }
+module.exports = { ProductsItem, scheme };

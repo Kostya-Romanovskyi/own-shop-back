@@ -14,6 +14,9 @@ router.get('/items/:id', ctrlProdItem.getItemById);
 // add new product item
 router.post('/items', upload.single('image'), ctrlProdItem.addNewItem);
 
+//add ingredients to item
+router.post('/items/:id/ingredients', ctrlProdItem.addIngredientsToItem);
+
 // update item
 router.patch('/items/:id', upload.single('image'), ctrlProdItem.updateItem);
 
