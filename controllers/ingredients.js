@@ -10,4 +10,12 @@ const getAllIngredients = async (req, res) => {
 	}
 };
 
+const addNewIngredient = async (req,res)=>{
+	try {
+		
+	} catch (error) {
+		
+	}
+}
+
 module.exports = { getAllIngredients };

@@ -38,23 +38,23 @@ const getItemById = async (req, res) => {
 };
 
 const addIngredientsToItem = async (req, res) => {
-	const { id } = req.params; // Получаем ID товара из параметров
-	const { ingredientIds } = req.body; // Получаем массив ID ингредиентов из тела запроса
+	const { id } = req.params;
+	const { ingredientIds } = req.body;
 
 	try {
-		// Находим товар по ID
-		const product = await ProductsItem.findByPk(id);
-		if (!product) {
-			return res.status(404).json({ error: 'Product not found' });
+		// fined item by id
+		const item = await ProductsItem.findByPk(id);
+		if (!item) {
+			return res.status(404).json({ error: 'Item not found' });
 		}
 
-		// Добавляем ингредиенты к товару
-		await product.addIngredients(ingredientIds);
+		// adding ingredients to item
+		await item.addIngredients(ingredientIds);
 
-		return res.status(200).json({ message: 'Ingredients added to product successfully' });
+		return res.status(200).json({ message: 'Ingredients added to item successfully' });
 	} catch (error) {
-		console.error('Error adding ingredients to product:', error);
-		return res.status(500).json({ error: 'Error adding ingredients to product' });
+		console.error('Error adding ingredients to item:', error);
+		return res.status(500).json({ error: 'Error adding ingredients to item' });
 	}
 };
 
