@@ -3,12 +3,13 @@ const { Products } = require('../models/products');
 const { cloudinary } = require('../config/cloudinary');
 
 const fs = require('fs');
+const { log } = require('console');
 
 const getAllCategories = async (req, res) => {
 	try {
 		const result = await Categories.findAll();
 
-		// Проверяем, если массив пустой
+		// Checking empty array
 		if (result.length === 0) {
 			return res.status(404).json({ error: 'Categories not found' });
 		}
@@ -71,6 +72,8 @@ const getCategoryByName = async (req, res) => {
 const addNewCategory = async (req, res) => {
 	try {
 		const newData = req.body;
+		let imageUrl;
+		console.log(newData);
 
 		const validateBody = schemes.categoriesScheme.validate(newData);
 
@@ -82,7 +85,29 @@ const addNewCategory = async (req, res) => {
 			return res.status(500).json({ message: 'This category name is already exists' });
 		}
 
-		const newCategory = await Categories.create(newData);
+		if (req.file) {
+			const { path: tempUpload } = req.file;
+
+			// const getAvatarUrl = await Categories.findOne({ where: { id } });
+
+			// if (getAvatarUrl && getAvatarUrl.image) {
+			// 	const publicId = getAvatarUrl.image.split('/').pop().split('.')[0];
+
+			// 	if (publicId) {
+			// 		await cloudinary.uploader.destroy(publicId);
+			// 	}
+			// }
+
+			const updatedImage = await cloudinary.uploader.upload(tempUpload);
+
+			imageUrl = updatedImage.url;
+
+			fs.unlink(tempUpload, error => {
+				if (error) return console.log('Error delete file from temporary folder');
+			});
+		}
+
+		const newCategory = await Categories.create({ ...newData, image: imageUrl });
 
 		res.status(201).json(newCategory);
 	} catch (error) {

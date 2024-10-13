@@ -2,9 +2,12 @@ const express = require('express');
 
 const router = express.Router();
 
-const { getAllIngredients } = require('../../controllers/ingredients');
+const { getAllIngredients, addNewIngredient } = require('../../controllers/ingredients');
 
-// add order item
+// get all ingredients
 router.get('/ingredients', getAllIngredients);
+
+// add new ingredient
+router.post('/ingredients', addNewIngredient);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const { Products, schemes } = require('../models/products');
 const { ProductsItem } = require('../models/productsItem');
+const { Ingredients } = require('../models/ingredients');
 const { cloudinary } = require('../config/cloudinary');
 const fs = require('fs');
 
@@ -10,7 +11,7 @@ const getAllProducts = async (req, res) => {
 		const result = await Products.findAll({
 			limit,
 			offset: (page - 1) * limit,
-			include: { model: ProductsItem },
+			include: { model: ProductsItem, include: { model: Ingredients, attributes: ['name'] } },
 		});
 
 		// const result = await Products.findAll();
@@ -26,7 +27,7 @@ const getProductByName = async (req, res) => {
 		console.log(name);
 
 		const result = await Products.findOne({
-			include: [{ model: ProductsItem }],
+			include: [{ model: ProductsItem, include: { model: Ingredients, attributes: ['name'] } }],
 			where: { name },
 		});
 

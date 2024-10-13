@@ -42,19 +42,94 @@ const addIngredientsToItem = async (req, res) => {
 	const { ingredientIds } = req.body;
 
 	try {
-		// fined item by id
+		// Find item by id
 		const item = await ProductsItem.findByPk(id);
 		if (!item) {
 			return res.status(404).json({ error: 'Item not found' });
 		}
 
-		// adding ingredients to item
-		await item.addIngredients(ingredientIds);
+		// Get existing ingredients for the item
+		const existingIngredients = await item.getIngredients();
 
-		return res.status(200).json({ message: 'Ingredients added to item successfully' });
+		// Create a Set of existing ingredient IDs for quick lookup
+		const existingIngredientIds = new Set(existingIngredients.map(ingredient => ingredient.id));
+
+		// Separate new ingredients and existing ones
+		const newIngredientIds = [];
+		const existingIngredientDetails = [];
+
+		ingredientIds.forEach(ingredientId => {
+			if (existingIngredientIds.has(ingredientId)) {
+				existingIngredientDetails.push(ingredientId); // Track existing ingredient IDs
+			} else {
+				newIngredientIds.push(ingredientId); // Track new ingredient IDs
+			}
+		});
+
+		// Adding new ingredients to item
+		if (newIngredientIds.length > 0) {
+			await item.addIngredients(newIngredientIds);
+		}
+
+		// Prepare response message
+		const responseMessage = {
+			message: 'Ingredients processed successfully',
+			added: newIngredientIds.length > 0 ? newIngredientIds : undefined,
+			existing: existingIngredientDetails.length > 0 ? existingIngredientDetails : undefined,
+		};
+
+		return res.status(200).json(responseMessage);
 	} catch (error) {
 		console.error('Error adding ingredients to item:', error);
 		return res.status(500).json({ error: 'Error adding ingredients to item' });
+	}
+};
+
+const removeIngredientsFromItem = async (req, res) => {
+	const { id } = req.params; // ID of the product item
+	const { ingredientIds } = req.body; // Array of ingredient IDs to remove
+
+	try {
+		// Find item by id
+		const item = await ProductsItem.findByPk(id);
+		if (!item) {
+			return res.status(404).json({ error: 'Item not found' });
+		}
+
+		// Get existing ingredients for the item
+		const existingIngredients = await item.getIngredients();
+
+		// Create a Set of existing ingredient IDs for quick lookup
+		const existingIngredientIds = new Set(existingIngredients.map(ingredient => ingredient.id));
+
+		// Separate ingredients to remove and those that do not exist
+		const removedIngredientIds = [];
+		const notFoundIngredientDetails = [];
+
+		ingredientIds.forEach(ingredientId => {
+			if (existingIngredientIds.has(ingredientId)) {
+				removedIngredientIds.push(ingredientId); // Track ingredient IDs to be removed
+			} else {
+				notFoundIngredientDetails.push(ingredientId); // Track IDs that were not found
+			}
+		});
+
+		// Removing ingredients from item
+		if (removedIngredientIds.length > 0) {
+			await item.removeIngredients(removedIngredientIds);
+		}
+
+		// Prepare response message
+		const responseMessage = {
+			message: 'Ingredients processed successfully',
+			removed: removedIngredientIds.length > 0 ? removedIngredientIds : undefined,
+			notFound: notFoundIngredientDetails.length > 0 ? notFoundIngredientDetails : undefined,
+		};
+
+		return res.status(200).json(responseMessage);
+	} catch (error) {
+		console.error('Error removing ingredients from item:', error);
+		return res.status(500).json({ error: 'Error removing ingredients from item' });
 	}
 };
 
@@ -158,4 +233,12 @@ const deleteItem = async (req, res) => {
 	}
 };
 
-module.exports = { getAllItems, getItemById, addNewItem, updateItem, deleteItem, addIngredientsToItem };
+module.exports = {
+	getAllItems,
+	getItemById,
+	addNewItem,
+	updateItem,
+	deleteItem,
+	addIngredientsToItem,
+	removeIngredientsFromItem,
+};

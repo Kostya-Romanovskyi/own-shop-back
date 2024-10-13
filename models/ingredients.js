@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
+const Joi = require('joi');
 
 const Ingredients = sequelize.define(
 	'ingredients',
@@ -17,4 +18,11 @@ const Ingredients = sequelize.define(
 	{ timestamps: true, tableName: 'ingredients' }
 );
 
-module.exports = { Ingredients };
+const addIngredientScheme = Joi.object({
+	name: Joi.string().required(),
+	description: Joi.string().required(),
+	allergen_info: Joi.string().required(),
+	calories: Joi.string().required(),
+});
+
+module.exports = { Ingredients, addIngredientScheme };

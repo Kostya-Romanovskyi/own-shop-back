@@ -19,7 +19,7 @@ router.get('/products', getAllProducts);
 router.get('/products/:name', getProductByName);
 
 //add new product
-router.post('/products', upload.single('image'), authorization, addProduct);
+router.post('/products', upload.single('image'), addProduct);
 
 //update product
 router.patch('/products/:id', upload.single('image'), authorization, updateProduct);

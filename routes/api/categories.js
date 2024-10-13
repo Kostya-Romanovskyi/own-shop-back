@@ -17,7 +17,7 @@ router.get('/categories', ctrlCategories.getAllCategories);
 router.get('/categories/:name', ctrlCategories.getCategoryByName);
 
 //create category
-router.post('/categories', authorization, ctrlCategories.addNewCategory);
+router.post('/categories', upload.single('image'), ctrlCategories.addNewCategory);
 
 //update category
 router.patch('/categories/:id', upload.single('image'), authorization, ctrlCategories.updateCategory);

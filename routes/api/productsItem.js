@@ -8,19 +8,22 @@ const ctrlProdItem = require('../../controllers/productsItem');
 // get all products item
 router.get('/items', ctrlProdItem.getAllItems);
 
-// get item by id
+// GET item by id
 router.get('/items/:id', ctrlProdItem.getItemById);
 
-// add new product item
+// ADD new product item
 router.post('/items', upload.single('image'), ctrlProdItem.addNewItem);
 
-//add ingredients to item
+//ADD ingredients to item
 router.post('/items/:id/ingredients', ctrlProdItem.addIngredientsToItem);
 
-// update item
+// DELETE request to remove ingredients from a product item
+router.delete('/items/:id/ingredients', ctrlProdItem.removeIngredientsFromItem);
+
+// UPDATE item
 router.patch('/items/:id', upload.single('image'), ctrlProdItem.updateItem);
 
-// delete item
+// DELETE item
 router.delete('/items/:id', authorization, ctrlProdItem.deleteItem);
 
 module.exports = router;
