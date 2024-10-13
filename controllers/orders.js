@@ -94,7 +94,7 @@ const addOrder = async (req, res) => {
 					order_id: order.id,
 					products_item_id,
 					quantity,
-					price: price * quantity,
+					price,
 				}))
 			);
 		}
