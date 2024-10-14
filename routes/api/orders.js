@@ -1,14 +1,16 @@
-const express = require('express')
-const { getAllOrders, getOrderItems, addOrder, getUserOrders } = require('../../controllers/orders')
+const express = require('express');
+const { getAllOrders, getOrderItems, addOrder, getUserOrders, deleteOrder } = require('../../controllers/orders');
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/orders', getAllOrders)
+router.get('/orders', getAllOrders);
 
-router.get('/:userId/orders', getUserOrders)
+router.get('/:userId/orders', getUserOrders);
 
-router.get('/orders/:orderId/items', getOrderItems)
+router.get('/orders/:orderId/items', getOrderItems);
 
-router.post('/order', addOrder)
+router.post('/order', addOrder);
 
-module.exports = router
+router.delete('/order/:orderId', deleteOrder);
+
+module.exports = router;

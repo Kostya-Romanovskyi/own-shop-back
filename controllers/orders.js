@@ -35,19 +35,39 @@ const getUserOrders = async (req, res) => {
 		});
 
 		// Modify data for front-end
-		const result = response.map(({ id, status, total_price, order_date, order_items }) => ({
-			id: id,
-			status: status,
-			totalPrice: total_price,
-			order_date,
-			order_items: order_items.map(({ id, quantity, price, createdAt, products_item }) => ({
-				id: id,
-				quantity: quantity,
-				price: price,
-				createdAt: createdAt,
-				product: products_item,
-			})),
-		}));
+		const result = response.map(
+			({
+				id,
+				status,
+				total_price,
+				order_date,
+				chopsticks,
+				chopsticks_quantity,
+				soy_sauce,
+				allergic,
+				type_of_allergy,
+				additional_information,
+				order_items,
+			}) => ({
+				id,
+				status,
+				totalPrice: total_price,
+				order_date,
+				chopsticks,
+				chopsticks_quantity,
+				soy_sauce,
+				allergic,
+				type_of_allergy,
+				additional_information,
+				order_items: order_items.map(({ id, quantity, price, createdAt, products_item }) => ({
+					id: id,
+					quantity: quantity,
+					price: price,
+					createdAt: createdAt,
+					product: products_item,
+				})),
+			})
+		);
 
 		res.status(200).json(result);
 	} catch (error) {
@@ -107,4 +127,15 @@ const addOrder = async (req, res) => {
 	}
 };
 
-module.exports = { getAllOrders, getUserOrders, getOrderItems, addOrder };
+const deleteOrder = async (req, res) => {
+	try {
+		const { orderId } = req.params;
+
+		await Orders.destroy({ where: { id: orderId } });
+		res.status(200).json({ message: 'Order was delete successfully' });
+	} catch (error) {
+		res.status(500).json({ message: 'Error deleted', error });
+	}
+};
+
+module.exports = { getAllOrders, getUserOrders, getOrderItems, addOrder, deleteOrder };
