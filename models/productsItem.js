@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const Joi = require('joi');
 const sequelize = require('../config/sequelize');
+const { Ingredients } = require('./ingredients');
 
 const ProductsItem = sequelize.define(
 	'products_item',
