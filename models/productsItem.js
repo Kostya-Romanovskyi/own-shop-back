@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const Joi = require('joi');
 const sequelize = require('../config/sequelize');
-const { Ingredients } = require('./ingredients');
 
 const ProductsItem = sequelize.define(
 	'products_item',
@@ -45,11 +44,5 @@ const scheme = {
 	productsItemScheme,
 	updateProductsItemScheme,
 };
-
-ProductsItem.belongsToMany(Ingredients, {
-	through: ProductsItemIngredients,
-	foreignKey: 'products_item_id',
-	otherKey: 'ingredient_id',
-});
 
 module.exports = { ProductsItem, scheme };

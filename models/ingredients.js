@@ -25,10 +25,4 @@ const addIngredientScheme = Joi.object({
 	calories: Joi.string().required(),
 });
 
-Ingredients.belongsToMany(ProductsItem, {
-	through: ProductsItemIngredients,
-	foreignKey: 'ingredient_id',
-	otherKey: 'products_item_id',
-});
-
 module.exports = { Ingredients, addIngredientScheme };
