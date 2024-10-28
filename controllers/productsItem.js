@@ -10,6 +10,7 @@ const getAllItems = async (req, res) => {
 		const { page = 1, limit = 10 } = req.query;
 
 		const result = await ProductsItem.findAll({
+			include: { model: Ingredients, attributes: ['name'] },
 			page,
 			offset: (page - 1) * limit,
 		});

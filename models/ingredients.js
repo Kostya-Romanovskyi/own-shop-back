@@ -8,7 +8,7 @@ const Ingredients = sequelize.define(
 		id: {
 			type: DataTypes.INTEGER,
 			primaryKey: true,
-			autoIncrement: true, // Не забудьте добавить автоинкремент
+			autoIncrement: true,
 		},
 		name: DataTypes.STRING,
 		description: DataTypes.STRING,
@@ -23,6 +23,12 @@ const addIngredientScheme = Joi.object({
 	description: Joi.string().required(),
 	allergen_info: Joi.string().required(),
 	calories: Joi.string().required(),
+});
+
+Ingredients.belongsToMany(ProductsItem, {
+	through: ProductsItemIngredients,
+	foreignKey: 'ingredient_id',
+	otherKey: 'products_item_id',
 });
 
 module.exports = { Ingredients, addIngredientScheme };

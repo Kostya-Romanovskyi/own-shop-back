@@ -25,7 +25,7 @@ const ProductsItem = sequelize.define(
 
 const productsItemScheme = Joi.object({
 	id: Joi.number(),
-	name: Joi.string().min(4).max(20).required(),
+	name: Joi.string().min(4).max(25).required(),
 	description: Joi.string().required(),
 	price: Joi.number().precision(5).positive().precision(2).required(),
 	products_id: Joi.number().required(),
@@ -44,5 +44,11 @@ const scheme = {
 	productsItemScheme,
 	updateProductsItemScheme,
 };
+
+ProductsItem.belongsToMany(Ingredients, {
+	through: ProductsItemIngredients,
+	foreignKey: 'products_item_id',
+	otherKey: 'ingredient_id',
+});
 
 module.exports = { ProductsItem, scheme };

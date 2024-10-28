@@ -24,6 +24,6 @@ router.delete('/items/:id/ingredients', ctrlProdItem.removeIngredientsFromItem);
 router.patch('/items/:id', upload.single('image'), ctrlProdItem.updateItem);
 
 // DELETE item
-router.delete('/items/:id', authorization, ctrlProdItem.deleteItem);
+router.delete('/items/:id', ctrlProdItem.deleteItem);
 
 module.exports = router;
