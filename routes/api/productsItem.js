@@ -9,7 +9,10 @@ const ctrlProdItem = require('../../controllers/productsItem');
 router.get('/items', ctrlProdItem.getAllItems);
 
 // GET item by id
-router.get('/items/:id', ctrlProdItem.getItemById);
+router.get('/items/by-id/:id', ctrlProdItem.getItemById);
+
+// GET item by name
+router.get('/items/query/:name', ctrlProdItem.getItemsByName);
 
 // ADD new product item
 router.post('/items', upload.single('image'), ctrlProdItem.addNewItem);

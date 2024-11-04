@@ -25,6 +25,6 @@ router.post('/products', upload.single('image'), addProduct);
 router.patch('/products/:id', upload.single('image'), authorization, updateProduct);
 
 //delete product
-router.delete('/products/:id', authorization, deleteProduct);
+router.delete('/products/:id', deleteProduct);
 
 module.exports = router;

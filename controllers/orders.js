@@ -17,8 +17,14 @@ const getAllOrders = async (req, res) => {
 const getUserOrders = async (req, res) => {
 	try {
 		const { userId } = req.params;
+		const page = parseInt(req.query.page) || 1;
+		const limit = parseInt(req.query.limit) || 5;
+		const offset = (page - 1) * limit;
 
-		// Fined all orders of users with products and items
+		const { count } = await Orders.findAndCountAll({
+			where: { user_id: userId },
+		});
+
 		const response = await Orders.findAll({
 			where: { user_id: userId },
 			include: [
@@ -32,9 +38,10 @@ const getUserOrders = async (req, res) => {
 					],
 				},
 			],
+			limit: limit,
+			offset: offset,
 		});
 
-		// Modify data for front-end
 		const result = response.map(
 			({
 				id,
@@ -60,16 +67,22 @@ const getUserOrders = async (req, res) => {
 				type_of_allergy,
 				additional_information,
 				order_items: order_items.map(({ id, quantity, price, createdAt, products_item }) => ({
-					id: id,
-					quantity: quantity,
-					price: price,
-					createdAt: createdAt,
+					id,
+					quantity,
+					price,
+					createdAt,
 					product: products_item,
 				})),
 			})
 		);
 
-		res.status(200).json(result);
+		res.status(200).json({
+			result,
+			currentPage: page,
+			totalPages: Math.ceil(count / limit),
+			totalItems: count,
+			itemsPerPage: 5,
+		});
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: 'Failed to fetch all user orders' });

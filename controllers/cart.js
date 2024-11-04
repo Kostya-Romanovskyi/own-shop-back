@@ -32,24 +32,26 @@ const addItemInCart = async (req, res) => {
 		const { users_id, products_item_id, quantity, unit_price } = req.body;
 
 		const checkDuplicate = await Cart.findOne({ where: { users_id, products_item_id } });
+		const addedItem = await ProductsItem.findOne({ where: products_item_id });
 
 		if (checkDuplicate) {
-			return res.status(409).json({ message: `Item with id ${products_item_id} already in cart` });
+			return res.status(409).json({ message: `${addedItem.name} already in cart` });
 		}
 
-		const productPrice = await ProductsItem.findOne({ where: products_item_id });
-		const finalPrice = quantity * +productPrice.price;
+		// const productPrice = await ProductsItem.findOne({ where: products_item_id });
+		const finalPrice = quantity * +addedItem.price;
 
 		const result = await Cart.create({
 			users_id,
 			products_item_id,
+			products_item_name: addedItem.name,
 			quantity,
 			price: +finalPrice.toFixed(2),
 			cart_status: 'active',
 			unit_price,
 		});
 
-		res.status(201).json(result);
+		res.status(201).json({ addedProductName: addedItem.name });
 	} catch (error) {
 		console.error('Error adding item to cart:', error);
 		res.status(500).json({ error: 'Internal Server Error' });

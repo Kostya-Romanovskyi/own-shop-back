@@ -1,6 +1,7 @@
 const { cloudinary, getCloudOptions } = require('../config/cloudinary');
 const path = require('path');
 const fs = require('fs');
+const { Op } = require('sequelize');
 
 const { ProductsItem, scheme } = require('../models/productsItem');
 const { Ingredients } = require('../models/ingredients');
@@ -35,6 +36,29 @@ const getItemById = async (req, res) => {
 		console.log(error);
 
 		res.status(500).json({ error: 'Error fetch item by id' });
+	}
+};
+
+const getItemsByName = async (req, res) => {
+	try {
+		const { name } = req.params;
+
+		const result = await ProductsItem.findAll({
+			where: {
+				name: {
+					[Op.like]: `%${name}%`, // Partial match search
+				},
+			},
+			include: {
+				model: Ingredients,
+				attributes: ['id', 'name', 'description', 'allergen_info', 'calories'],
+			},
+		});
+
+		res.status(200).json(result);
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ error: 'Error fetching items by name' });
 	}
 };
 
@@ -237,6 +261,7 @@ const deleteItem = async (req, res) => {
 module.exports = {
 	getAllItems,
 	getItemById,
+	getItemsByName,
 	addNewItem,
 	updateItem,
 	deleteItem,

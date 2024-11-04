@@ -12,6 +12,13 @@ const fs = require('fs/promises');
 
 const { SECRET_KEY } = process.env;
 
+const cloudOptions = {
+	public_id: `${Date.now()}`,
+	use_filename: true,
+	unique_filename: false,
+	overwrite: true,
+};
+
 const getAllUsers = async (req, res) => {
 	try {
 		const page = req.query.page || 1;
@@ -64,13 +71,6 @@ const register = async (req, res) => {
 		if (req.file) {
 			const { path: tempUpload, originalname } = req.file;
 
-			const cloudOptions = {
-				public_id: `${Date.now()}`,
-				use_filename: true,
-				unique_filename: false,
-				overwrite: true,
-			};
-
 			const result = await cloudinary.uploader.upload(tempUpload, cloudOptions);
 
 			avatarUrl = result.url;
@@ -85,7 +85,9 @@ const register = async (req, res) => {
 
 			console.log('Temporary file successfully deleted');
 		} else {
-			avatarUrl = path.join('avatar', 'defaultAvatar.svg');
+			const localAvatarPath = path.join('public', 'avatar', 'defaultAvatar.svg');
+			const result = await cloudinary.uploader.upload(localAvatarPath, cloudOptions);
+			avatarUrl = result.url;
 		}
 
 		delete req.body.password_check;
