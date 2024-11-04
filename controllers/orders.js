@@ -40,6 +40,7 @@ const getUserOrders = async (req, res) => {
 			],
 			limit: limit,
 			offset: offset,
+			order: [['id', 'DESC']],
 		});
 
 		const result = response.map(
@@ -75,7 +76,6 @@ const getUserOrders = async (req, res) => {
 				})),
 			})
 		);
-
 		res.status(200).json({
 			result,
 			currentPage: page,
