@@ -31,6 +31,8 @@ const addItemInCart = async (req, res) => {
 	try {
 		const { users_id, products_item_id, quantity, unit_price } = req.body;
 
+		if (users_id === -1) return res.status(409).json({ message: 'Please at first login' });
+
 		const checkDuplicate = await Cart.findOne({ where: { users_id, products_item_id } });
 		const addedItem = await ProductsItem.findOne({ where: products_item_id });
 

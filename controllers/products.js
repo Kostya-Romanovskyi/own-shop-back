@@ -24,10 +24,14 @@ const getAllProducts = async (req, res) => {
 const getProductByName = async (req, res) => {
 	try {
 		const { name } = req.params;
-		console.log(name);
+		const page = parseInt(req.query.page) || 1;
+		const limit = parseInt(req.query.limit) || 10;
+		const offset = (page - 1) * limit;
 
 		const result = await Products.findOne({
-			include: [{ model: ProductsItem, include: { model: Ingredients, attributes: ['name'] } }],
+			include: [
+				{ model: ProductsItem, limit: limit, offset: offset, include: { model: Ingredients, attributes: ['name'] } },
+			],
 			where: { name },
 		});
 
