@@ -23,6 +23,6 @@ router.post('/categories', upload.single('image'), ctrlCategories.addNewCategory
 router.patch('/categories/:id', upload.single('image'), authorization, ctrlCategories.updateCategory);
 
 //delete category
-router.delete('/categories/:id', authorization, ctrlCategories.deleteCategory);
+router.delete('/categories/:id', ctrlCategories.deleteCategory);
 
 module.exports = router;

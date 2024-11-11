@@ -86,6 +86,8 @@ const addNewCategory = async (req, res) => {
 		}
 
 		if (req.file) {
+			console.log(req.file);
+
 			const { path: tempUpload } = req.file;
 
 			// const getAvatarUrl = await Categories.findOne({ where: { id } });

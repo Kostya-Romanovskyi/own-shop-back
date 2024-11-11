@@ -29,9 +29,7 @@ const getProductByName = async (req, res) => {
 		const offset = (page - 1) * limit;
 
 		const result = await Products.findOne({
-			include: [
-				{ model: ProductsItem, limit: limit, offset: offset, include: { model: Ingredients, attributes: ['name'] } },
-			],
+			include: [{ model: ProductsItem, include: { model: Ingredients, attributes: ['name'] } }],
 			where: { name },
 		});
 
