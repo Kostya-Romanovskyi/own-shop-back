@@ -1,12 +1,15 @@
-const express = require('express')
+const express = require('express');
 
-const router = express.Router()
+const router = express.Router();
 
-const { getUserOrders } = require('../../controllers/users')
+const { getUserOrders, getUserById } = require('../../controllers/users');
 
 // router.get('/users/:id')
-router.get('/users/:id/orders', getUserOrders)
+router.get('/users/:id/orders', getUserOrders);
+
+// Get user by id
+router.get('/user/:userId', getUserById);
 
 // /api/orders/:orderId
 
-module.exports = router
+module.exports = router;

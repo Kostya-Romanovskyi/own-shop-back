@@ -5,6 +5,7 @@ const { Op } = require('sequelize');
 
 const { ProductsItem, scheme } = require('../models/productsItem');
 const { Ingredients } = require('../models/ingredients');
+const { log } = require('console');
 
 const getAllItems = async (req, res) => {
 	try {
@@ -250,7 +251,11 @@ const deleteItem = async (req, res) => {
 	try {
 		const { id } = req.params;
 
-		await ProductsItem.destroy({ where: { id } });
+		const result = await ProductsItem.destroy({ where: { id } });
+
+		if (result === 0) {
+			return res.status(404).json({ message: 'Item not found' });
+		}
 
 		res.status(200).json({ message: 'Item was successfully deleted' });
 	} catch (error) {

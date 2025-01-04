@@ -7,10 +7,35 @@ const { ProductsItem } = require('../models/productsItem');
 const getAllOrders = async (req, res) => {
 	try {
 		const { page = 1, limit = 10 } = req.query;
-		const result = await Orders.findAll({ limit, offset: (page - 1) * limit, include: [OrderItems] });
-		res.status(200).json(result);
+
+		const result = await Orders.findAll({
+			order: [['id', 'DESC']],
+			limit: Number(limit),
+			offset: (page - 1) * Number(limit),
+			include: {
+				model: OrderItems,
+				include: [
+					{
+						model: ProductsItem,
+						attributes: ['id', 'name', 'price', 'image'],
+					},
+				],
+			},
+		});
+
+		const addUsersToResponse = await Promise.all(
+			result.map(async item => {
+				const eachUser = await User.findOne({ where: { id: item.user_id } });
+
+				const orderData = item.toJSON();
+				return { ...orderData, user: eachUser };
+			})
+		);
+
+		res.status(200).json(addUsersToResponse);
 	} catch (error) {
-		res.status(500).json('Failed to fetch all orders');
+		console.error(error);
+		res.status(500).json({ error: 'Failed to fetch all orders' });
 	}
 };
 
@@ -140,6 +165,31 @@ const addOrder = async (req, res) => {
 	}
 };
 
+const updateOrderStatus = async (req, res) => {
+	try {
+		const { orderId } = req.params;
+		const { status: newStatus } = req.body;
+
+		const validStatuses = ['Pending', 'Processing', 'Delivered', 'Cancelled'];
+		if (!validStatuses.includes(newStatus)) {
+			return res.status(400).json({ error: 'Invalid status value' });
+		}
+
+		const order = await Orders.findOne({ where: { id: orderId } });
+		if (!order) {
+			return res.status(404).json({ error: 'Order not found' });
+		}
+
+		order.status = newStatus;
+		await order.save();
+
+		res.status(200).json({ message: 'Order status updated successfully', order });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: 'Failed to update order status' });
+	}
+};
+
 const deleteOrder = async (req, res) => {
 	try {
 		const { orderId } = req.params;
@@ -151,4 +201,4 @@ const deleteOrder = async (req, res) => {
 	}
 };
 
-module.exports = { getAllOrders, getUserOrders, getOrderItems, addOrder, deleteOrder };
+module.exports = { getAllOrders, getUserOrders, getOrderItems, addOrder, updateOrderStatus, deleteOrder };
