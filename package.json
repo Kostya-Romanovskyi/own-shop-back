@@ -26,7 +26,12 @@
 		"mysql": "^2.18.1",
 		"mysql2": "^3.9.6",
 		"sequelize": "^6.37.3",
+		"sib-api-v3-sdk": "^8.5.0",
+		"socket.io": "^4.8.1",
 		"sqlite3": "^5.1.7"
 	},
-	"description": ""
+	"description": "",
+	"devDependencies": {
+		"nodemon": "^3.1.9"
+	}
 }
