@@ -12,7 +12,7 @@ const sendEmail = async (email, name, text) => {
       sender: { email: "romanovskiyk97@gmail.com", name: "OwnRestaurant" },
       to: [{ email: email, name: name }],
       subject: "Notification from restaurant 'OwnRestaurant'",
-      htmlContent: <h1>${text}</h1>,
+      htmlContent: text,
     });
 
     console.log("Email sent successfully:", response);
