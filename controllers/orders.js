@@ -6,6 +6,7 @@ const { ProductsItem } = require("../models/productsItem");
 const { io } = require("../server");
 const countTotalPriceWithTax = require("../helpers/countTax");
 const sendEmail = require("../helpers/sendEmail");
+const { Op } = require("sequelize");
 const {
   createApprovedOrderText,
   createOrderReceivedText,
@@ -13,11 +14,23 @@ const {
   createOrderCancelledText,
 } = require("../helpers/textLayouts");
 
+const getOrders = async (req, res) => {
+  const user = await User.findByPk(62);
+  const test = await user.getOrders();
+  console.log("test", test);
+};
+getOrders();
+
 const getAllOrders = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
 
     const result = await Orders.findAll({
+      where: {
+        status: {
+          [Op.ne]: "Picked up", // remove orders with status "Picked Up"
+        },
+      },
       order: [["id", "DESC"]],
       limit: Number(limit),
       offset: (page - 1) * Number(limit),
@@ -35,7 +48,6 @@ const getAllOrders = async (req, res) => {
     const addUsersToResponse = await Promise.all(
       result.map(async (item) => {
         const eachUser = await User.findOne({ where: { id: item.user_id } });
-
         const orderData = item.toJSON();
         return { ...orderData, user: eachUser };
       })
@@ -252,7 +264,6 @@ const updateOrderStatusStaff = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status: newStatus } = req.body;
-    console.log(req.body);
 
     // const validStatuses = ["Pending", "In Process", "Picked Up", "Cancelled"];
     // if (!validStatuses.includes(newStatus)) {

@@ -151,6 +151,10 @@ const login = async (req, res) => {
 };
 
 const getCurrentUser = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "User is not authorized" });
+  }
+
   const {
     id,
     name,
@@ -163,7 +167,7 @@ const getCurrentUser = async (req, res) => {
     createdAt,
   } = req.user;
 
-  res.json({
+  return res.json({
     id,
     name,
     last_name,

@@ -39,7 +39,10 @@ const User = sequelize.define(
       allowNull: false,
     },
 
-    additional_information: DataTypes.STRING,
+    additional_information: {
+      type: DataTypes.STRING,
+      defaultValue: " ",
+    },
 
     role: {
       type: DataTypes.ENUM("admin", "user"),
@@ -66,7 +69,7 @@ const registerSchema = Joi.object({
   password: Joi.string().min(6).max(25).required(),
   password_check: Joi.string().min(6).max(25).required(),
   phone: myCustomJoi.string().phoneNumber().required(),
-  additional_information: Joi.string().optional(),
+  additional_information: Joi.string(),
   role: Joi.string().required(),
   image: Joi.optional(),
   createdAt: Joi.date().timestamp().default(Date.now),
@@ -97,8 +100,5 @@ const schemas = {
 };
 
 User.hasMany(Orders, { foreignKey: "user_id" });
-// User.hasMany(Orders, { foreignKey: "user_id", as: "orders" });
-
-// User.hasMany(OrderItems, { foreignKey: 'order_items' })
 
 module.exports = { User, schemas };
