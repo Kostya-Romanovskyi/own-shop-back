@@ -120,6 +120,7 @@ const getAllTodayOrders = async (req, res) => {
           },
         },
       ],
+      order: [["id", "DESC"]],
     });
 
     const totalMoneyFromAllOrders = todayOrders
@@ -171,6 +172,7 @@ const getOrdersForThisDay = async (req, res) => {
           },
         },
       ],
+      order: [["id", "DESC"]],
     });
 
     if (!ordersForThisDay.length) {
