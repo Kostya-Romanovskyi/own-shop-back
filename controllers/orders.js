@@ -14,18 +14,12 @@ const {
   createOrderCancelledText,
 } = require("../helpers/textLayouts");
 
-const getOrders = async (req, res) => {
-  const user = await User.findByPk(62);
-  const test = await user.getOrders();
-  console.log("test", test);
-};
-getOrders();
-
-const getAllOrders = async (req, res) => {
+// Get all active orders
+const getActiveOrdersForToday = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
 
-    const result = await Orders.findAll({
+    const allActiveOrders = await Orders.findAll({
       where: {
         status: {
           [Op.ne]: "Picked up", // remove orders with status "Picked Up"
@@ -34,26 +28,31 @@ const getAllOrders = async (req, res) => {
       order: [["id", "DESC"]],
       limit: Number(limit),
       offset: (page - 1) * Number(limit),
-      include: {
-        model: OrderItems,
-        include: [
-          {
-            model: ProductsItem,
-            attributes: ["id", "name", "price", "image"],
-          },
-        ],
-      },
+      include: [
+        {
+          model: OrderItems,
+          include: [
+            {
+              model: ProductsItem,
+              attributes: ["id", "name", "price", "image"],
+            },
+          ],
+        },
+        {
+          model: User,
+          attributes: [
+            "name",
+            "last_name",
+            "email",
+            "phone",
+            "additional_information",
+            "image",
+          ],
+        },
+      ],
     });
 
-    const addUsersToResponse = await Promise.all(
-      result.map(async (item) => {
-        const eachUser = await User.findOne({ where: { id: item.user_id } });
-        const orderData = item.toJSON();
-        return { ...orderData, user: eachUser };
-      })
-    );
-
-    res.status(200).json(addUsersToResponse);
+    res.status(200).json(allActiveOrders);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch all orders" });
@@ -89,6 +88,112 @@ const fetchAllOrdersSocket = async () => {
 
   const lastAddedOrder = addUsersToResponse[0];
   return lastAddedOrder;
+};
+
+// Get all orders for today
+const getAllTodayOrders = async (req, res) => {
+  const targetStatus = "Picked Up";
+
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  try {
+    const todayOrders = await Orders.findAll({
+      where: {
+        order_date: {
+          [Op.between]: [startOfDay, endOfDay],
+        },
+      },
+      include: [
+        {
+          model: User,
+          attributes: ["name", "last_name", "email", "phone", "image"],
+        },
+        {
+          model: OrderItems,
+          include: {
+            model: ProductsItem,
+            attributes: ["id", "name", "price", "image"],
+          },
+        },
+      ],
+    });
+
+    const totalMoneyFromAllOrders = todayOrders
+      .filter((order) => order.status === targetStatus)
+      .reduce((acc, order) => acc + parseFloat(order.total_price), 0);
+
+    const formattedTotal = totalMoneyFromAllOrders.toFixed(2);
+
+    return res.status(200).json({
+      todayOrders: todayOrders,
+      totalMoneyFromAllOrders: formattedTotal,
+    });
+  } catch (error) {
+    return res
+      .status(401)
+      .json({ message: "Error getting all orders for today", error });
+  }
+};
+
+// Get all orders by date
+const getOrdersForThisDay = async (req, res) => {
+  const { date } = req.body;
+  const targetStatus = "Picked Up";
+
+  try {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const ordersForThisDay = await Orders.findAll({
+      where: {
+        order_date: {
+          [Op.gte]: startOfDay,
+          [Op.lt]: endOfDay,
+        },
+      },
+      include: [
+        {
+          model: User,
+          attributes: ["name", "last_name", "email", "phone"],
+        },
+        {
+          model: OrderItems,
+          include: {
+            model: ProductsItem,
+            attributes: ["id", "name", "price", "image"],
+          },
+        },
+      ],
+    });
+
+    if (!ordersForThisDay.length) {
+      return res.status(404).json({
+        message: "No orders found for this day",
+        orders: [],
+        totalMoneyFromAllOrders: "0",
+      });
+    }
+
+    const totalMoneyFromAllOrders = ordersForThisDay
+      .filter((order) => order.status === targetStatus)
+      .reduce((acc, order) => acc + parseFloat(order.total_price), 0);
+
+    const formattedTotal = totalMoneyFromAllOrders.toFixed(2);
+
+    return res.status(200).json({
+      orders: ordersForThisDay,
+      totalMoneyForThisDay: formattedTotal,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Error retrieving orders", error });
+  }
 };
 
 const getUserOrders = async (req, res) => {
@@ -264,11 +369,19 @@ const updateOrderStatusStaff = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status: newStatus } = req.body;
+    console.log(newStatus);
 
-    // const validStatuses = ["Pending", "In Process", "Picked Up", "Cancelled"];
-    // if (!validStatuses.includes(newStatus)) {
-    //   return res.status(400).json({ error: "Invalid status value" });
-    // }
+    const validStatuses = [
+      "Pending",
+      "In Process",
+      "Picked Up",
+      "Cancelled",
+      "Completed",
+    ];
+
+    if (!validStatuses.includes(newStatus)) {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
 
     const order = await Orders.findOne({ where: { id: orderId } });
     if (!order) {
@@ -321,7 +434,9 @@ const deleteOrder = async (req, res) => {
 };
 
 module.exports = {
-  getAllOrders,
+  getActiveOrdersForToday,
+  getAllTodayOrders,
+  getOrdersForThisDay,
   getUserOrders,
   getOrderItems,
   addOrder,

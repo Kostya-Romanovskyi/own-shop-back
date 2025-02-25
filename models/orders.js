@@ -11,7 +11,7 @@ const Orders = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    user_id: DataTypes.INTEGER,
+    user_id: DataTypes.INTEGER(11),
     order_date: DataTypes.DATE,
     status: DataTypes.ENUM(
       "Pending",

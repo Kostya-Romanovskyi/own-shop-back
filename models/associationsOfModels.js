@@ -4,6 +4,7 @@ const { ProductsItemIngredients } = require("./productsItemWithIngredients");
 
 const { User } = require("./users");
 const { Reservations } = require("./reservations");
+const { Orders } = require("./orders");
 
 ProductsItem.belongsToMany(Ingredients, {
   through: ProductsItemIngredients,
@@ -17,10 +18,13 @@ Ingredients.belongsToMany(ProductsItem, {
 User.hasMany(Reservations, { foreignKey: "user_id" });
 Reservations.belongsTo(User, { foreignKey: "user_id" });
 
+Orders.belongsTo(User, { foreignKey: "user_id" });
+
 module.exports = {
   ProductsItem,
   Ingredients,
   ProductsItemIngredients,
   Reservations,
   User,
+  Orders,
 };

@@ -1,6 +1,8 @@
 const express = require("express");
 const {
-  getAllOrders,
+  getActiveOrdersForToday,
+  getAllTodayOrders,
+  getOrdersForThisDay,
   getOrderItems,
   addOrder,
   getUserOrders,
@@ -11,7 +13,11 @@ const {
 
 const router = express.Router();
 
-router.get("/orders", getAllOrders);
+router.get("/orders", getActiveOrdersForToday);
+
+router.get("/orders-all-today", getAllTodayOrders);
+
+router.post("/orders-by-date", getOrdersForThisDay);
 
 router.get("/:userId/orders", getUserOrders);
 
