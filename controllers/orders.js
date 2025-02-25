@@ -176,7 +176,7 @@ const getOrdersForThisDay = async (req, res) => {
     });
 
     if (!ordersForThisDay.length) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "No orders found for this day",
         orders: [],
         totalMoneyFromAllOrders: "0",
